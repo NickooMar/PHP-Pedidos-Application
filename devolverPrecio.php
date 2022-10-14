@@ -22,6 +22,7 @@ foreach ($arrayProductos as $producto) {
 
     $nombreProducto = $producto['nombreProducto'];
 
+    /* Traigo todos los datos de ese producto y se lo mando al front-end */
     $tomarPrecioPorNombreProducto = $database->query("SELECT * FROM productos WHERE Nombre_Producto = '${nombreProducto}'");
 
     while ($resultadoQueryProducto = mysqli_fetch_assoc($tomarPrecioPorNombreProducto)) {

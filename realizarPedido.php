@@ -220,6 +220,7 @@
         document.getElementById('verListadoPedidoBtn').disabled = true;
     }
 
+    var arrayNombreProductosIngresados = [];
 
     function ingresarPedido() {
 
@@ -230,65 +231,84 @@
         var cantidadProducto = document.getElementById('cantidadPorProducto').value;
 
 
-
+        //Creamos un objeto temporal que almacena el nombre y la cantidad del producto, que nos servirá para consultar (stock y precio) en la base de datos.
         const producto = {
             nombreProducto: nombreProducto,
             cantidadProducto: cantidadProducto,
         };
 
 
+        //Seteo el id del cliente que realiza el pedido en el objeto maestro del pedido.
         objetoPedido.datosCliente = ID_Cliente;
 
-
-
+        //Verifico que los datos ingresados sean validos. 
         if ((nombreProducto === 'null' || cantidadProducto == 0 || fechaPedido === '')) {
             alert('Error: ingrese datos validos');
             console.log(objetoPedido);
         } else {
+            /*Si la fecha es diferente de vacio entonces significa que puede ingresar un producto por primera vez o cuantas veces quieras ya que luego de ingresar un producto
+            el valor de la fecha se congela en un valor evitando que devuelva error de 'Ingresar datos validos'*/
             if (fechaPedido != '') {
-                objetoPedido.fechaEntregaPedido = fechaPedido;
 
-                objetoPedido.productos.push(producto);
+                //Verifico que el nombre del producto que se quiere ingresar no haya sido ingresado anteriormente.
+                if (!arrayNombreProductosIngresados.includes(producto.nombreProducto)) {
+                    objetoPedido.fechaEntregaPedido = fechaPedido;
+                    /* Agrego los datos (Nombre y cantidad) del producto al array para saber que producto voy a buscar en la BD */
+                    objetoPedido.productos.push(producto);
+                    tomarNombreProductoDevolverPrecio();
+                    /*Llamo a la función que realizara la consulta a la base de datos y con los datos del producto (Nombre y cantidad) me traera el precio y demas valores 
+                    que no se pueden obtener sin realizar una consulta a la BD*/
 
-                tomarNombreProductoDevolverPrecio();
+                } else {
+                    alert('El producto ya fue ingresado anteriormente.')
+                }
+
+                //Evito que pueda modificar la fecha luego de haber ingresado el primer producto
                 document.getElementById('fechaEntregaPedido').disabled = true;
-            } else {
-                objetoPedido.productos.push(producto);
-                tomarNombreProductoDevolverPrecio();
+
             }
 
+            //Reseteo los campos
             document.getElementById('selectProducto').value = 'null';
             document.getElementById('cantidadPorProducto').value = 0;
 
-            console.log(objetoPedido);
-
-
         }
 
-
+        //Valido que para ver el listado final primero tiene que haber minimo 1 producto ingresado en el objeto del pedido
         if (objetoPedido.productos.length === 0) {
             document.getElementById('verListadoPedidoBtn').disabled = true;
         } else {
             document.getElementById('verListadoPedidoBtn').disabled = false;
         }
 
-
+        //Función que utilizo con AJAX para enviarle el nombre del producto y devolver el precio, stock y el (precio * cantidad)
         function tomarNombreProductoDevolverPrecio() {
             $.ajax({
                 url: 'devolverPrecio.php',
                 method: 'post',
                 data: {
+                    /* Para obtener el precio, stock y (precio * cantidad) primero tengo que pasarle el ultimo producto ingresado, para saber a quien corresponde esos datos*/
                     arrayProductos: JSON.stringify([objetoPedido.productos[objetoPedido.productos.length - 1]])
                 },
                 success: function(res) {
+                    /* (res) sera el array con los datos completos de ese producto (ID, Nombre, Cantidad, Stock, Precio, (Precio * Cantidad)) ya que viene de PHP se tiene que 
+                    convertir a JSON para que JS pueda interpretarlo */
                     var listadoProductoFinal = JSON.parse(res);
 
-
-
-
+                    /* Si la cantidad que se ingreso para ese producto es menor al stock disponible entonces puedo agregar todos los datos de ese producto al Objeto Maestro de Pedidos */
                     if (parseInt(listadoProductoFinal.cantidadProducto) <= parseInt(listadoProductoFinal.stockProducto)) {
+                        /* Tengo que eliminar el ultimo producto ingresado ya que solo se ingreso el nombre y la cantidad, que se tomo como referencia para conseguir los datos de
+                        (Precio, Stock, etc.) */
                         objetoPedido.productos.pop();
+                        /* Ahora si eliminados los datos que me ayudaron a referenciar ese producto en la BD puedo finalmente ingresar todos los datos del producto
+                        (ID, Nombre, Cantidad, Stock, Precio, (Precio * Cantidad)) */
                         objetoPedido.productos.push(listadoProductoFinal);
+
+                        /*Al ser ingresado el producto satisfactoriamente en el Objeto Maestro de Pedidos puedo ingresar su nombre en el array para luego validar que 
+                        no se repita ese producto */
+                        arrayNombreProductosIngresados.push(listadoProductoFinal.nombreProducto);
+
+                        /* Utilizo MAP para mostrar el ultimo producto ingresado y permitirme elimarlo, si es necesario, tomando como referencia su indice */
                         objetoPedido.productos.map((productoIndividual, index) => {
                             document.getElementById('table-body').innerHTML = "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProducto(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
                         })
@@ -304,22 +324,22 @@
                     } else {
                         document.getElementById('verListadoPedidoBtn').disabled = false;
                     }
-
-
                 }
             })
         }
+
 
     }
 
     function eliminarProducto(indiceProducto) {
 
         objetoPedido.productos.splice(indiceProducto, 1) //Elimino el producto con ese indice dentro del array original (Modificando el array original)
+        arrayNombreProductosIngresados.splice(indiceProducto, 1) //Elimino el nombre del producto de modo que pueda volver a ingresar ese producto y no se repita.
 
         if (objetoPedido.productos.length === 0) {
             document.getElementById('table-body').innerHTML = "<tr><td></td><td></td> <td> No hay Productos ingresados </td> <td></td><td></td></tr>";
         } else {
-            //Recorro el nuevo array que se modifico luego del slice, en donde el map me va a devolver el ultimo elemento ingresado y el indice.
+            //Recorro el nuevo array que se modifico luego del slice, en donde el map me va a devolver el ultimo elemento ingresado y el indice por si quiere eliminar el anterior y asi hasta que no queden más elementos.
             objetoPedido.productos.map((productoIndividual, index) => {
                 document.getElementById('table-body').innerHTML = "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProducto(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
             })
@@ -362,16 +382,12 @@
     }
 </script>
 
-<div>
-    <form id="formularioEnvioPedido" action="test.php" method="POST">
-        <input type="hidden" name="envioPedido" id="envioPedido" value="">
-        <input type="submit" id="botonEnvioPedido" name="submit" value="Submit" style="display: none;" />
-    </form>
-</div>
 
 <script type="text/javascript">
+    /* Función que inserta el pedido en la base de datos pasandole el Objeto Maestro de Pedido */
     function confirmarPedido() {
 
+        //No me permite pasar un objeto a PHP por ende lo paso como array
         var arrayPedido = [];
 
         arrayPedido.push(objetoPedido);
@@ -386,6 +402,7 @@
                 success: function(res) {
                     console.log(res);
 
+                    //Si la respuesta es true, es decir, que se ingresaron los datos entonces aviso que esto se realizo con exito y envío al usuario a la pagina principal
                     if (JSON.parse(res) === 1) {
                         alert('Pedido Ingresados satisfactoriamente');
                         redireccionar();

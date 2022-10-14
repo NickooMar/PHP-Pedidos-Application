@@ -162,12 +162,14 @@ if ($database === false) {
 
 
     function mostrarResultadoConsulta(arrayResultadoBackend) {
-        console.log(arrayResultadoBackend);
 
+        /* Verifico que la BD me haya traido datos */
         if (arrayResultadoBackend.length === 0) {
             document.getElementById('tablaMostrarResultados').innerHTML = ('<h1 class="display-4 mt-4 text-center" style="font-size: 24px;">No se encontraron datos relacionados, intente nuevamente con otra fecha</h1>' +
                 "<br>" + "<div class='text-center'>" + '<a href="consultarPedido.php"> <input name="btnVueltaConsulta" id="btnVueltaConsulta" class="btn btn-outline-dark" value="Volver a consultar"></a>' + "</div>")
         } else {
+            /* Recorro los pedidos que recibi y les asigno un formato y nombre para luego mostrarlos en una tabla, llamo a la pagina pedidoSeleccionado pasandole por GET los datos
+            de ese pedido */
             arrayResultadoBackend.map((resultadoArray) => {
 
                 var IDPedido = resultadoArray[0];

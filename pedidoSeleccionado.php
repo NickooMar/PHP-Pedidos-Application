@@ -17,7 +17,7 @@ if ($database === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-
+/* Tomo los datos que vienen por medio de un GET que corresponden a ese pedido*/
 $IDClienteSesion = $_SESSION['cliente']['ID_cliente'];
 
 $IDPedido = $_GET['IDPedido'];
@@ -29,6 +29,8 @@ $querySolicitarPedidoSeleccionado = "SELECT * FROM pedidos, productos, productos
 
 $resultadoQuerySolicitarPedidoSeleccionado = $database->query($querySolicitarPedidoSeleccionado);
 
+
+/* En caso que quiera modificar los datos obtenido por GET para acceder a otros campos entonces, cierro su sesión y lo mando al LOGIN */
 if (!$resultadoQuerySolicitarPedidoSeleccionado) {
     session_destroy();
     header("Location: login.php");
@@ -59,6 +61,8 @@ $resultadoQueryDatosCliente = $database->query($queryDatosClientePedido);
 </head>
 
 <?php
+
+/* En caso que quiera modificar los datos obtenido por GET para acceder a otros campos entonces, cierro su sesión y lo mando al LOGIN */
 
 if ($IDClientePedido != $IDClienteSesion) {
     session_destroy();
@@ -167,19 +171,19 @@ if ($IDClientePedido != $IDClienteSesion) {
 
     <script>
         document.getElementById('table-body').innerHTML = "<?php while ($mostrarQueryPedido = mysqli_fetch_assoc($resultadoQuerySolicitarPedidoSeleccionado)) {
-        $sumaTotalPrecioPedido += ($mostrarQueryPedido['Precio_Producto'] * $mostrarQueryPedido['Cantidad']);
-        echo "<tr>";
-        echo "<td>" . $mostrarQueryPedido['ID_Producto'] . "</td>"; 
-        echo "<td>" . $mostrarQueryPedido['Nombre_Producto'] . "</td>"; 
-        echo "<td>" . $mostrarQueryPedido['Cantidad'] . "</td>"; 
-        echo "<td>" . $mostrarQueryPedido['Precio_Producto'] . "</td>"; 
-        echo "<td class='bg-primary text-white'>" . $mostrarQueryPedido['Precio_Producto'] * $mostrarQueryPedido['Cantidad'] . "</td>"; 
-        echo "</tr>"; 
-        }
+                                                                $sumaTotalPrecioPedido += ($mostrarQueryPedido['Precio_Producto'] * $mostrarQueryPedido['Cantidad']);
+                                                                echo "<tr>";
+                                                                echo "<td>" . $mostrarQueryPedido['ID_Producto'] . "</td>";
+                                                                echo "<td>" . $mostrarQueryPedido['Nombre_Producto'] . "</td>";
+                                                                echo "<td>" . $mostrarQueryPedido['Cantidad'] . "</td>";
+                                                                echo "<td>" . $mostrarQueryPedido['Precio_Producto'] . "</td>";
+                                                                echo "<td class='bg-primary text-white'>" . $mostrarQueryPedido['Precio_Producto'] * $mostrarQueryPedido['Cantidad'] . "</td>";
+                                                                echo "</tr>";
+                                                            }
 
-       echo "<br><br><tr class='bg-primary'><td colspan='5'>" . "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " . $sumaTotalPrecioPedido . "</h1></td></tr>";
+                                                            echo "<br><br><tr class='bg-primary'><td colspan='5'>" . "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " . $sumaTotalPrecioPedido . "</h1></td></tr>";
 
-        ?>"
+                                                            ?>"
     </script>
 
     <div class="text-center mt-4">
