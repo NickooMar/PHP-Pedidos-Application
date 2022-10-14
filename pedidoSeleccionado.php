@@ -57,6 +57,9 @@ $resultadoQueryDatosCliente = $database->query($queryDatosClientePedido);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Libre Barcode 39' rel='stylesheet'>
+
+
     <title>Pedido - Seleccionado</title>
 </head>
 
@@ -186,6 +189,19 @@ if ($IDClientePedido != $IDClienteSesion) {
                                                             ?>"
     </script>
 
+
+
+    <div class="text-center">
+        <h1 class="barcode text-center mt-4"><?php echo $IDPedido . $IDClientePedido . $datosCliente['DNI_cliente'] ?></h1>
+        <img src="https://chart.googleapis.com/chart?chs=152x152&cht=qr&chl=http%3A%2F%2Fwww.google.com%2F&choe=UTF-8" title="Link to Google.com" />
+    </div>
+
+
+    <div class="text-center">
+        <a href="javascript:window.print()">
+            <input name="btnImprimirFactura" id="btnImprimirFactura" class="btn btn-success" value="Imprimir Factura">
+        </a>
+    </div>
     <div class="text-center mt-4">
         <a href="consultarPedido.php">
             <input name="btnVueltaConsulta" id="btnVueltaConsulta" class="btn btn-dark " value="Volver a consultar">
@@ -197,3 +213,11 @@ if ($IDClientePedido != $IDClienteSesion) {
 
 
 </html>
+
+
+<style>
+    .barcode {
+        font-family: 'Libre Barcode 39';
+        font-size: 40px;
+    }
+</style>
