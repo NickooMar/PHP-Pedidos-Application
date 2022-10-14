@@ -193,7 +193,7 @@ if ($IDClientePedido != $IDClienteSesion) {
 
     <div class="text-center">
         <h1 class="barcode text-center mt-4"><?php echo $IDPedido . $IDClientePedido . $datosCliente['DNI_cliente'] ?></h1>
-        <img src="https://chart.googleapis.com/chart?chs=152x152&cht=qr&chl=http%3A%2F%2Fwww.google.com%2F&choe=UTF-8" title="Link to Google.com" />
+        <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=http%3A%2F%2Fwww.google.com%2F&choe=UTF-8" title="Link to Google.com" />
     </div>
 
 
