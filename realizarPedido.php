@@ -352,7 +352,6 @@
             document.getElementById('verListadoPedidoBtn').disabled = false;
         }
 
-        console.log(objetoPedido)
 
     }
 
@@ -386,7 +385,6 @@
         document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="cancelarPedido" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
         document.getElementById('resultadoBotones').innerHTML += '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-primary mb-4 mt-2 mx-4 text-white" onclick="confirmarPedido()" value="Confirmar Pedido"></div></div>';
 
-        console.log(objetoPedido);
 
     }
 
@@ -412,7 +410,6 @@
         document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="cancelarPedido" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
         document.getElementById('resultadoBotones').innerHTML += '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-primary mb-4 mt-2 mx-4 text-white" onclick="confirmarPedido()" value="Confirmar Pedido"></div></div>';
 
-        console.log(objetoPedido)
 
     }
 </script>
