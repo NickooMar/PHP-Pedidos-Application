@@ -27,6 +27,7 @@ foreach ($arrayProductos as $producto) {
     while ($resultadoQueryProducto = mysqli_fetch_assoc($tomarPrecioPorNombreProducto)) {
         $producto['precioProducto'] = $resultadoQueryProducto['Precio_Producto'];
         $producto['precioTotalProducto'] = $resultadoQueryProducto['Precio_Producto'] * $producto['cantidadProducto'];
+        $producto['stockProducto'] = $resultadoQueryProducto['stock'];
 
 
         $codificacionArrayJS = json_encode($producto);

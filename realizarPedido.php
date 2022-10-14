@@ -24,7 +24,7 @@
     }
 
     $consultaClientes = $database->query("SELECT * FROM clientes WHERE ID_cliente = $ID_Cliente");
-    $consultaProductos = $database->query("SELECT * FROM productos");
+    $consultaProductos = $database->query("SELECT * FROM productos ORDER BY Nombre_Producto ASC");
 
 
     ?>
@@ -35,6 +35,10 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
     <!-- JQUERY -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <title>Pagina - Pedido</title>
@@ -101,7 +105,7 @@
                                     <div class="input-group-append">
                                         <span class="input-group-text">DNI Cliente</span>
                                     </div>
-                                    <select name="selectCliente" id="selectCliente" class="form-control text-center">
+                                    <select name="selectCliente" id="selectCliente" class="form-control">
                                         <?php
                                         while ($clienteDNI = mysqli_fetch_assoc($consultaClientes)) {
                                             echo "<option value='{$clienteDNI['ID_cliente']}' name='{$clienteDNI['DNI_cliente']}' >{$clienteDNI['DNI_cliente']}</option>";
@@ -125,7 +129,7 @@
                                     <div class="input-group-append">
                                         <span class="input-group-text">Producto</span>
                                     </div>
-                                    <select name="selectProducto" id="selectProducto" class="form-control text-center">
+                                    <select name="selectProducto" id="selectProducto" class="form-control">
                                         <option value="null" disabled selected>Seleccionar</option>
                                         <?php
                                         while ($productoNombreCodigo = mysqli_fetch_assoc($consultaProductos)) {
@@ -174,6 +178,7 @@
                         <th scope="col">Cantidad</th>
                         <th scope="col">Precio Unitario</th>
                         <th scope="col">Precio Total - Producto</th>
+                        <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="table-body" class="text-center">
@@ -255,13 +260,15 @@
             document.getElementById('selectProducto').value = 'null';
             document.getElementById('cantidadPorProducto').value = 0;
 
-            // console.log(objetoPedido);
+            console.log(objetoPedido);
 
 
         }
 
 
-        if (objetoPedido.productos.length != 0) {
+        if (objetoPedido.productos.length === 0) {
+            document.getElementById('verListadoPedidoBtn').disabled = true;
+        } else {
             document.getElementById('verListadoPedidoBtn').disabled = false;
         }
 
@@ -275,14 +282,57 @@
                 },
                 success: function(res) {
                     var listadoProductoFinal = JSON.parse(res);
-                    objetoPedido.productos.pop();
-                    objetoPedido.productos.push(listadoProductoFinal);
-                    objetoPedido.productos.map((productoIndividual) => {
-                        document.getElementById('table-body').innerHTML = "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td></tr>";
-                    })
+
+
+
+
+                    if (parseInt(listadoProductoFinal.cantidadProducto) <= parseInt(listadoProductoFinal.stockProducto)) {
+                        objetoPedido.productos.pop();
+                        objetoPedido.productos.push(listadoProductoFinal);
+                        objetoPedido.productos.map((productoIndividual, index) => {
+                            document.getElementById('table-body').innerHTML = "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProducto(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
+                        })
+                    } else {
+                        objetoPedido.productos.pop();
+                        alert('La cantidad requerida supera el stock. Ingrese otro valor');
+                    }
+
+
+
+                    if (objetoPedido.productos.length === 0) {
+                        document.getElementById('verListadoPedidoBtn').disabled = true;
+                    } else {
+                        document.getElementById('verListadoPedidoBtn').disabled = false;
+                    }
+
+
                 }
             })
         }
+
+    }
+
+    function eliminarProducto(indiceProducto) {
+
+        objetoPedido.productos.splice(indiceProducto, 1) //Elimino el producto con ese indice dentro del array original (Modificando el array original)
+
+        if (objetoPedido.productos.length === 0) {
+            document.getElementById('table-body').innerHTML = "<tr><td></td><td></td> <td> No hay Productos ingresados </td> <td></td><td></td></tr>";
+        } else {
+            //Recorro el nuevo array que se modifico luego del slice, en donde el map me va a devolver el ultimo elemento ingresado y el indice.
+            objetoPedido.productos.map((productoIndividual, index) => {
+                document.getElementById('table-body').innerHTML = "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProducto(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
+            })
+        }
+
+
+        if (objetoPedido.productos.length === 0) {
+            document.getElementById('verListadoPedidoBtn').disabled = true;
+        } else {
+            document.getElementById('verListadoPedidoBtn').disabled = false;
+        }
+
+
 
     }
 
@@ -301,12 +351,12 @@
 
         objetoPedido.productos.map((productoIndividual) => {
             sumaTotalPedido += productoIndividual.precioTotalProducto;
-            document.getElementById('table-body').innerHTML += "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td></tr>";
+            document.getElementById('table-body').innerHTML += "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + " " + "</td></tr>";
         })
-        document.getElementById('table-body').innerHTML += "<br><br><tr class='bg-primary'><td colspan='4'>" + "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " + sumaTotalPedido + "</h1></td></tr>";
+        document.getElementById('table-body').innerHTML += "<br><br><tr class='bg-primary'><td colspan='5'>" + "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " + sumaTotalPedido + "</h1></td></tr>";
 
 
-        document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
+        document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="cancelarPedido" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
         document.getElementById('resultadoBotones').innerHTML += '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-primary mb-4 mt-2 mx-4 text-white" onclick="confirmarPedido()" value="Confirmar Pedido"></div></div>';
 
     }

@@ -32,7 +32,7 @@ if ($database === false) {
 }
 ?>
 
-<body>
+<body class="bg-light">
 
 
     <!-- Navbar - Header -->
@@ -80,6 +80,7 @@ if ($database === false) {
     <div class="d-flex justify-content-center p-4 bg-light">
         <h1 class="display-4" style="font-size: 32px;">Listado de Productos</h1>
     </div>
+    <h1 class="display-4 text-center " style="font-size: 18px;">(Orden Alfabético)</h1>
 
 
 
@@ -105,7 +106,7 @@ if ($database === false) {
             <tbody class="text-center">
 
                 <?php
-                $consultaProductos = $database->query("SELECT * FROM productos");
+                $consultaProductos = $database->query("SELECT * FROM productos ORDER BY Nombre_Producto ASC");
 
                 while ($resultado = mysqli_fetch_assoc($consultaProductos)) {
                     if ($resultado['stock'] == 0) {
