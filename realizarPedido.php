@@ -352,7 +352,41 @@
             document.getElementById('verListadoPedidoBtn').disabled = false;
         }
 
+        console.log(objetoPedido)
 
+    }
+
+
+    function eliminarProductoListadoFinal(indiceProducto) {
+
+        var sumaTotalPedido = 0;
+
+
+        document.getElementById('ingresarPedidoBtn').disabled = false;
+        document.getElementById('verListadoPedidoBtn').disabled = false;
+        document.getElementById('selectProducto').disabled = false;
+        document.getElementById('cantidadPorProducto').disabled = false;
+        document.getElementById('table-body').innerHTML = ''
+
+
+        objetoPedido.productos.splice(indiceProducto, 1) //Elimino el producto con ese indice dentro del array original (Modificando el array original)
+        arrayNombreProductosIngresados.splice(indiceProducto, 1) //Elimino el nombre del producto de modo que pueda volver a ingresar ese producto y no se repita.
+
+        if (objetoPedido.productos.length === 0) {
+            document.getElementById('table-body').innerHTML = "<tr><td></td><td></td> <td> No hay Productos ingresados </td> <td></td><td></td></tr>";
+        } else {
+            //Recorro el nuevo array que se modifico luego del slice, en donde el map me va a devolver el ultimo elemento ingresado y el indice por si quiere eliminar el anterior y asi hasta que no queden más elementos.
+            objetoPedido.productos.map((productoIndividual, index) => {
+                sumaTotalPedido += productoIndividual.precioTotalProducto;
+                document.getElementById('table-body').innerHTML += "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProducto(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
+            })
+            document.getElementById('table-body').innerHTML += "<br><br><tr class='bg-primary'><td colspan='5'>" + "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " + sumaTotalPedido + "</h1></td></tr>";
+        }
+
+        document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="cancelarPedido" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
+        document.getElementById('resultadoBotones').innerHTML += '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-primary mb-4 mt-2 mx-4 text-white" onclick="confirmarPedido()" value="Confirmar Pedido"></div></div>';
+
+        console.log(objetoPedido);
 
     }
 
@@ -361,7 +395,6 @@
 
         var sumaTotalPedido = 0;
 
-        // console.log(objetoPedido);
 
         document.getElementById('ingresarPedidoBtn').disabled = true;
         document.getElementById('verListadoPedidoBtn').disabled = true;
@@ -369,15 +402,17 @@
         document.getElementById('cantidadPorProducto').disabled = true;
         document.getElementById('table-body').innerHTML = ''
 
-        objetoPedido.productos.map((productoIndividual) => {
+        objetoPedido.productos.map((productoIndividual, index) => {
             sumaTotalPedido += productoIndividual.precioTotalProducto;
-            document.getElementById('table-body').innerHTML += "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + " " + "</td></tr>";
+            document.getElementById('table-body').innerHTML += "<tr><td>" + productoIndividual.nombreProducto + "</td> <td class='text-center'>" + productoIndividual.cantidadProducto + "</td> <td class='text-center'>" + productoIndividual.precioProducto + "</td> <td class='text-center'>" + productoIndividual.precioTotalProducto + "</td><td>" + '<button class="btn btn-danger" onClick="eliminarProductoListadoFinal(' + index + ')" ><i  class="bi bi-x" style="cursor: pointer;">Eliminar</i></button>' + "</td></tr>";
         })
         document.getElementById('table-body').innerHTML += "<br><br><tr class='bg-primary'><td colspan='5'>" + "<h1 class='display-4 text-white' style='font-size: 20px; font-weight: 600'> Importe a Pagar: $ " + sumaTotalPedido + "</h1></td></tr>";
 
 
         document.getElementById('resultadoBotones').innerHTML = '<div class="d-flex justify-content-center"><div><input name="submitForm" id="cancelarPedido" class="btn btn-danger mb-4 mt-2 mx-4" onclick="cancelarPedido()" value="Cancelar Pedido"></div></div>';
         document.getElementById('resultadoBotones').innerHTML += '<div class="d-flex justify-content-center"><div><input name="submitForm" id="ingresarPedidoBtn" class="btn btn-primary mb-4 mt-2 mx-4 text-white" onclick="confirmarPedido()" value="Confirmar Pedido"></div></div>';
+
+        console.log(objetoPedido)
 
     }
 </script>
